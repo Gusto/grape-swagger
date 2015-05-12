@@ -43,8 +43,6 @@ module Grape
         @target_class.combined_namespace_identifiers = {}
         combine_namespace_routes(@target_class.combined_namespaces)
 
-        exclusive_route_keys = @target_class.combined_routes.keys - @target_class.combined_namespaces.keys
-        exclusive_route_keys.each { |key| @target_class.combined_namespace_routes[key] = @target_class.combined_routes[key] }
         documentation_class
       end
 
