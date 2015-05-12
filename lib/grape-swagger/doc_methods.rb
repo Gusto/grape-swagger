@@ -210,7 +210,12 @@ module GrapeSwagger
 
     def parse_path(path, version)
       # adapt format to swagger format
-      parsed_path = path.sub(/\(\..*\)$/, @@hide_format ? '' : '.{format}')
+      if @@hide_format
+        suffix = (path.match(/\(.*\)\z/) || [''])[0]
+        parsed_path = path.gsub(suffix, '')
+      else
+        parsed_path = path.gsub('(.:format)', @@hide_format ? '' : '.{format}')
+      end
 
       # This is attempting to emulate the behavior of
       # Rack::Mount::Strexp. We cannot use Strexp directly because
