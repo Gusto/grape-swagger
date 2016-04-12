@@ -257,7 +257,7 @@ module GrapeSwagger
         end
         i18n_keys << :default
 
-        model.exposures.each do |property_name, property_info|
+        extract_exposures(model.root_exposures, {}).each do |property_name, property_info|
           next unless property_info.key? :documentation
           property_name = property_info[:as] if property_info.key? :as
           p = property_info[:documentation].dup
@@ -312,7 +312,7 @@ module GrapeSwagger
 
       models.each do |model|
         # get model references from exposures with a documentation
-        nested_models = model.exposures.map do |_, config|
+        nested_models = extract_exposures(model.root_exposures, {}).map do |_, config|
           if config.key?(:documentation)
             model = config[:using]
             model.respond_to?(:constantize) ? model.constantize : model
@@ -328,6 +328,20 @@ module GrapeSwagger
       end
 
       all_models
+    end
+
+    def extract_exposures(root, hash, prefix = nil)
+      root.each do |entity|
+        key = "#{prefix}#{entity.attribute}"
+        nested = prefix.nil? ? {} : { nested: true }
+        if entity.is_a?(Grape::Entity::Exposure::NestingExposure)
+          hash[key.to_sym] = {}
+          extract_exposures(entity.nested_exposures, hash, key + '__')
+        else
+          hash[key.to_sym] = entity.send(:options).merge(nested)
+        end
+      end
+      hash
     end
 
     def is_primitive?(type)

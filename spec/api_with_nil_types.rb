@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'API with minimally documented models' do
   def app
     entity_klass = Class.new do
-      def self.exposures
+      def self.root_exposures
         {}
       end
 
